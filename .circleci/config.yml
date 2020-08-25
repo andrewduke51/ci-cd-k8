@@ -28,10 +28,11 @@ jobs:
               export TEST_MODE=1
 
       - run:
-          name: Whitelist IP
+          name: Whitelist IP and test kubectl
           command: |
             PUBLIC_IP=$(curl ifconfig.me)
             echo ${PUBLIC_IP}
+            kubectl get nodes --show-labels
 
       - run:
           name: Run Terrraform init
