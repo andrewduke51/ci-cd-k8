@@ -20,6 +20,7 @@
 python_versions/
 *Vagrantfile*
 *bootstrap.sh*
+notes
 
 *.pem
 *terraform.tfstate
