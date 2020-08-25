@@ -14,7 +14,6 @@ jobs:
           command: |
               python3 -m venv env
               . env/bin/activate
-              pip install -r ansible/requirements.txt
               apt update
       - run:
           name: Run Tests
@@ -28,12 +27,6 @@ jobs:
           command: |
             PUBLIC_IP=$(curl ifconfig.me)
             echo ${PUBLIC_IP}
-
-      - run:
-          name: Deploy vpn configurations
-          command: |
-            echo "${VAULT_PASS}" > /tmp/vault_pass.txt
-            ansible-playbook -i ansible/inventory ansible/playbooks/site.yml --vault-password-file=/tmp/vault_pass.txt
 
       - run:
           name: Run Terrraform init
