@@ -15,6 +15,7 @@ jobs:
               python3 -m venv env
               . env/bin/activate
               apt update
+              pip install boto3
               python ops/get_ssm.py
               chmod 400 ~/.ssh/id_rsa
       - run:
