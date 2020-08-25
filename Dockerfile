@@ -1,6 +1,7 @@
 # custom pythan image
 FROM ubuntu:16.04
 
+RUN mkdir ~/.aws
 COPY ops/config ~/.aws/config
 ENV TERRAFORM_VERSION 0.12.29
 RUN apt-get update && apt-get install -y \

@@ -15,7 +15,7 @@ jobs:
               python3 -m venv env
               . env/bin/activate
               apt update
-              pip install -r ops/requirements.txt
+              pip3 install -r ops/requirements.txt
               chmod 400 ~/.ssh/id_rsa
       - run:
           name: Run Tests
