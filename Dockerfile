@@ -34,4 +34,4 @@ RUN curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -
 RUN chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
 
 RUN curl -LO "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
-RUN unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin && mkdir ~/.ssh && touch ~/.ssh/authorized_keys &&touch ~/.ssh/known_hosts
+RUN unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip -d /usr/local/bin && mkdir ~/.ssh && touch ~/.ssh/authorized_keys && touch ~/.ssh/known_hosts
