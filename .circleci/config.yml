@@ -15,7 +15,7 @@ jobs:
               python3 -m venv env
               . env/bin/activate
               apt update
-              python3 ops/get_ssm.py
+              pip install -r ops/requirements.txt
               chmod 400 ~/.ssh/id_rsa
       - run:
           name: Run Tests
