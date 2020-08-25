@@ -24,6 +24,7 @@ python_versions/
 *.pem
 *terraform.tfstate
 *terraform.tfstate.backup
+terraform.tfvars
 *.terraform/
 .terraform
 *ubuntu-xenial*
