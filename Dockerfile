@@ -1,6 +1,7 @@
 # custom pythan image
 FROM ubuntu:16.04
 
+COPY ops/config ~/.aws/config
 ENV TERRAFORM_VERSION 0.12.29
 RUN apt-get update && apt-get install -y \
         software-properties-common
@@ -24,6 +25,7 @@ COPY requirements.txt .
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 RUN apt-get autoremove -y
+RUN pip3 install --upgrade pip
 
 RUN curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
 RUN chmod +x kops-linux-amd64 && mv kops-linux-amd64 /usr/local/bin/kops
