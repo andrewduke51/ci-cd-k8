@@ -1,0 +1,10 @@
+---
+-
+  gather_facts: true
+  hosts: group-servers
+  become: true
+  vars:
+    ssh_key: true
+    medicasoft: true
+  roles:
+  - ping_role

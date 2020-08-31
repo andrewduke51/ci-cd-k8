@@ -18,7 +18,6 @@
 *pip.sh
 .DS_Store
 python_versions/
-*Vagrantfile*
 *bootstrap.sh*
 notes
 

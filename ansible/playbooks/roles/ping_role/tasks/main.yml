@@ -1,0 +1,19 @@
+# Test connectivity to a windows host
+# ansible winserver -m win_ping
+- name: Example from an Ansible Playbook
+  ping:
+
+- debug:
+    msg: "{{ ansible_all_ipv4_addresses }}"
+
+- debug:
+    msg: "{{ ansible_default_ipv4.address }}"
+
+# - debug:
+#     msg: "{{ list_node }}"
+
+#- name: Induce an exception to see what happens
+#  win_ping:
+#    data: crash
+
+# - include: tasks/another.yml
