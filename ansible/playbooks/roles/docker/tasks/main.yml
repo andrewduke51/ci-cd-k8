@@ -1,0 +1,3 @@
+- name: Include provision
+  include: provision.yml
+#  when: BRANCH_TO_DEPLOY == 'integration-branch'
