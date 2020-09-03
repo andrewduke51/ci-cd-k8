@@ -1,31 +1,17 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: python-service
-spec:
-  selector:
-    app: python-service
-  ports:
-  - protocol: "TCP"
-    port: 6000
-    targetPort: 5000
-  type: LoadBalancer
-
-
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: Pod
 metadata:
-  name: python-service
+  name: flask-app.44-labs.com
 spec:
   replicas: 4
   template:
     metadata:
       labels:
-        app: python-service
+        app: flask-app
     spec:
       containers:
-      - name: python-service
+      - name:
         image: python:latest
         imagePullPolicy: Never
         ports:

@@ -28,6 +28,12 @@ jobs:
               export TEST_MODE=1
 
       - run:
+          name: build app container
+          command: |
+              cd docker
+              service docker start
+
+      - run:
           name: Whitelist IP and test kubectl
           command: |
             PUBLIC_IP=$(curl ifconfig.me)
