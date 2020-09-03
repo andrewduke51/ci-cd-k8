@@ -32,13 +32,9 @@ jobs:
           command: |
               cd docker
               service docker start
-
-      - run:
-          name: Whitelist IP and test kubectl
-          command: |
-            PUBLIC_IP=$(curl ifconfig.me)
-            echo ${PUBLIC_IP}
-            kubectl get nodes --show-labels
+              docker build -t flask-app .
+              docker tag flask-app:latest ${AWS_ACC_NUMBER}.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
+              docker push ${AWS_ACC_NUMBER}.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
 
       - run:
           name: Run Terrraform init
