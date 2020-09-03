@@ -31,7 +31,7 @@ jobs:
           name: build app container
           command: |
               cd docker
-              service docker start
+              sudo service docker start
               docker build -t flask-app .
               docker tag flask-app:latest ${AWS_ACC_NUMBER}.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
               docker push ${AWS_ACC_NUMBER}.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
