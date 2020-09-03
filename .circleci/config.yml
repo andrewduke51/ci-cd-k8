@@ -1,7 +1,7 @@
 version: 2.1
 jobs:
   build:
-    machine:
+    docker:
       - image: ${AWS_ACC_NUMBER}.dkr.ecr.us-east-1.amazonaws.com/python-service:latest
         environment:
           VAR_2: PLACE_HOLDER2
@@ -28,13 +28,11 @@ jobs:
               export TEST_MODE=1
 
       - run:
-          name: build app container
+          name: Whitelist IP and test kubectl
           command: |
-              cd docker
-              service docker start
-              docker build -t flask-app .
-              docker tag flask-app:latest ${AWS_ACC_NUMBER}.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
-              docker push ${AWS_ACC_NUMBER}.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
+            PUBLIC_IP=$(curl ifconfig.me)
+            echo ${PUBLIC_IP}
+            kubectl get nodes --show-labels
 
       - run:
           name: Run Terrraform init
