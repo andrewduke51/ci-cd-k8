@@ -1,7 +1,7 @@
 version: 2.1
 jobs:
   build:
-    docker:
+    machine:
       - image: ${AWS_ACC_NUMBER}.dkr.ecr.us-east-1.amazonaws.com/python-service:latest
         environment:
           VAR_2: PLACE_HOLDER2
@@ -31,7 +31,7 @@ jobs:
           name: build app container
           command: |
               cd docker
-              sudo service docker start
+              service docker start
               docker build -t flask-app .
               docker tag flask-app:latest ${AWS_ACC_NUMBER}.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
               docker push ${AWS_ACC_NUMBER}.dkr.ecr.us-east-1.amazonaws.com/flask-app:latest
