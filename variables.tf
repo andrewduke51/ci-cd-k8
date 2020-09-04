@@ -11,5 +11,5 @@ variable "subnet_internal" {
 }
 
 variable "my_public_ip" {
-  default = "134.204.100.2"
+  default = "70.160.122.188"
 }

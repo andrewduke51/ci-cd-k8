@@ -1,7 +1,7 @@
 resource "aws_security_group" "allow_tls" {
   name        = "allow_from"
   description = "Allow inbound traffic from Home"
-  vpc_id      = "${aws_vpc.main_vpc.id}"
+  vpc_id      = aws_vpc.main_vpc.id
 
   ingress {
     from_port   = 0
