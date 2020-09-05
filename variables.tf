@@ -13,3 +13,11 @@ variable "subnet_internal" {
 variable "my_public_ip" {
   default = "70.160.122.188"
 }
+
+variable "s3_bucket_name" {
+  default = "develop-terraform-backend-s3-store"
+}
+
+variable "terraform_dynamodb_iam_locks" {
+  default = "terraform-dynamodb-iam-locks"
+}

@@ -32,7 +32,7 @@ jobs:
           command: |
             PUBLIC_IP=$(curl ifconfig.me)
             echo ${PUBLIC_IP}
-            kubectl get nodes --show-labels
+            #kubectl get nodes --show-labels
 
       - run:
           name: Run Terrraform init
