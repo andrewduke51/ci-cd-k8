@@ -10,11 +10,12 @@ module "kubernetes_cluster" {
   vpc_id                  = aws_vpc.main_vpc.id
 }
 
-//# Route53
-//resource "aws_route53_record" "api_kube" {
-//  zone_id = var.hosted_zone_id_44
-//  name    = "api.kubernetes.44-labs.com"
-//  type    = "A"
-//  ttl     = "300"
-//  records = [module.kubernetes_cluster.master_node_public_ip]
-//}
+# Route53
+resource "aws_route53_record" "api_kube" {
+  zone_id = var.hosted_zone_id_44
+  name    = "api.kubernetes.44-labs.com"
+  type    = "A"
+  ttl     = "300"
+  records = [module.kubernetes_cluster.master_node_public_ip]
+  depends_on = [module.kubernetes_cluster.master_node_public_ip]
+}

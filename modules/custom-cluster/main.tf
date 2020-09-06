@@ -177,12 +177,13 @@ resource "aws_instance" "master" {
   # Prepare kubeconfig file for download to local machine
   cp /etc/kubernetes/admin.conf /home/ubuntu
   chown ubuntu:ubuntu /home/ubuntu/admin.conf
-  cp /home/ubuntu/admin.conf /tmp/admin.conf >/dev/null
+  cp /home/ubuntu/admin.conf /tmp/admin.conf
   chown ubuntu:ubuntu /tmp/admin.conf
   kubectl --kubeconfig /home/ubuntu/admin.conf config set-cluster kubernetes --server https://${var.api_dns_name}:6443
 
   # Indicate completion of bootstrapping on this node
   touch /home/ubuntu/done
+  chown ubuntu:ubuntu /home/ubuntu/admin.conf
   EOF
 }
 
@@ -256,8 +257,10 @@ resource "null_resource" "download_kubeconfig_file" {
   provisioner "local-exec" {
     command = <<-EOF
     alias scp='scp -q -i ${var.private_key_file} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
-    #scp ubuntu@${aws_eip.master.public_ip}:/home/ubuntu/admin.conf ${local.kubeconfig_file} >/dev/null
-    scp ubuntu@${aws_eip.master.public_ip}:/tmp/admin.conf ${local.kubeconfig_file} >/dev/null
+    scp ubuntu@${aws_eip.master.public_ip}:/home/ubuntu/admin.conf ${local.kubeconfig_file} >/dev/null
+    mv ${local.kubeconfig_file} ~/.kube
+    export KUBECONFIG=$(pwd)/${local.kubeconfig_file}
+
     EOF
   }
   triggers = {
