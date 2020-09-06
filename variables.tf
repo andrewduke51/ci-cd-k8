@@ -21,3 +21,9 @@ variable "s3_bucket_name" {
 variable "terraform_dynamodb_iam_locks" {
   default = "terraform-dynamodb-iam-locks"
 }
+
+variable "allowed_cidr_blocks" {
+  description = "Allow your Public IP"
+}
+
+variable "hosted_zone_id_44" {}
