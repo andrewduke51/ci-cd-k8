@@ -11,11 +11,14 @@
         state: directory
     -
       copy:
-        content: "\"{{ secret_pem }}\"\n"
-        dest: "{{ item }}"
+        content: "{{ item.content }}"
+        dest: "{{ item.dest }}"
       name: "Ansible create file with content"
+      no_log: true
       with_items:
-        - "~/{{ ssh_path }}"
+        - { content: "{{ secret_pem }}", dest: "~/{{ ssh_path }}" }
+        - { content: "{{ ssh_pub }}", dest: "~/{{ ssh_path }}.pub" }
+
     - copy:
         content: "\"{{ secret_kube_config }}\"\n"
         dest: "{{ item }}"
@@ -36,10 +39,12 @@
         replace: ""
       with_items:
         - "~/{{ ssh_path }}"
-        -  "~/{{ kube_path }}"
+        - "~/{{ kube_path }}"
+        - "~/{{ ssh_path }}.pub"
 
   vars:
     secret_pem: "{{ lookup('aws_ssm', '/cicd/ssh_key' ) }}"
+    ssh_pub: "{{ lookup('aws_ssm', '/cicd/ssh_pub' ) }}"
     secret_kube_config: "{{ lookup('aws_ssm', '/cicd/secret_kube_config' ) }}"
     ssh_path: ".ssh/id_rsa"
     kube_path: ".kube/kubeconfig"
