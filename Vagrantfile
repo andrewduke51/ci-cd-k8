@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "centos/7"
+  config.vm.box = "ubuntu/xenial64"
   config.vbguest.auto_update = true
   config.vm.synced_folder '.', '/vagrant', disabled: false
   config.vm.synced_folder '~/.aws/', '/home/vagrant/.aws/', disabled: false
@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
       machine.ssh.private_key_path = ["~/.ssh/vagrant", "~/.vagrant.d/insecure_private_key"]
       machine.ssh.insert_key = false # 1
       machine.vm.provision "file", source: "~/.ssh/vagrant.pub", destination: "/home/vagrant/.ssh/authorized_keys"
-      machine.vm.hostname = "centos7"
+      machine.vm.hostname = "vagrant-box"
 
 
       # Only execute the Ansible provisioner,

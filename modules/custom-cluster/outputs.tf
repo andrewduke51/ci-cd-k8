@@ -8,10 +8,6 @@ output "cluster_name" {
   description = "Name of the created cluster. This name is used as the value of the \"terraform-kubeadm:cluster\" tag assigned to all created AWS resources."
 }
 
-output "master_node_public_ip" {
-  value = aws_instance.master.public_ip
-}
-
 output "cluster_nodes" {
   value = [
     for i in concat([aws_instance.master], aws_instance.workers, ) : {
@@ -27,4 +23,8 @@ output "cluster_nodes" {
 output "vpc_id" {
   value       = aws_security_group.egress.vpc_id
   description = "ID of the VPC in which the cluster has been created."
+}
+
+output "master_node_public_ip" {
+  value = aws_instance.master.public_ip
 }

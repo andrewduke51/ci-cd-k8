@@ -141,6 +141,15 @@ data "aws_ami" "ubuntu" {
   }
 }
 
+# Template for initial configuration bash script kubernetes
+data "template_file" "init_kubernetes_install" {
+  template = file("${path.module}/templates/kubernetes_intsall.sh.tpl")
+  vars = {
+    TOKEN_ID   = local.token
+    PUBLIC_IP  = aws_eip.master.public_ip
+  }
+}
+
 resource "aws_instance" "master" {
   ami           = data.aws_ami.ubuntu.image_id
   instance_type = var.master_instance_type
@@ -153,38 +162,7 @@ resource "aws_instance" "master" {
     aws_security_group.ingress_ssh.id
   ]
   tags      = merge(local.tags, { "terraform-kubeadm:node" = "master" })
-  user_data = <<-EOF
-  #!/bin/bash
-
-  # Install kubeadm and Docker
-  apt-get update
-  apt-get install -y apt-transport-https curl
-  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" >/etc/apt/sources.list.d/kubernetes.list
-  apt-get update
-  apt-get install -y docker.io kubeadm
-
-  # Run kubeadm
-  kubeadm init \
-    --token "${local.token}" \
-    --token-ttl 15m \
-    --apiserver-cert-extra-sans "${aws_eip.master.public_ip}" \
-  %{if var.pod_network_cidr_block != null~}
-    --pod-network-cidr "${var.pod_network_cidr_block}" \
-  %{endif~}
-    --node-name master
-
-  # Prepare kubeconfig file for download to local machine
-  cp /etc/kubernetes/admin.conf /home/ubuntu
-  chown ubuntu:ubuntu /home/ubuntu/admin.conf
-  cp /home/ubuntu/admin.conf /tmp/admin.conf
-  chown ubuntu:ubuntu /tmp/admin.conf
-  kubectl --kubeconfig /home/ubuntu/admin.conf config set-cluster kubernetes --server https://${var.api_dns_name}:6443
-
-  # Indicate completion of bootstrapping on this node
-  touch /home/ubuntu/done
-  chown ubuntu:ubuntu /home/ubuntu/admin.conf
-  EOF
+  user_data = data.template_file.init_kubernetes_install.rendered
 }
 
 resource "aws_instance" "workers" {
@@ -258,9 +236,7 @@ resource "null_resource" "download_kubeconfig_file" {
     command = <<-EOF
     alias scp='scp -q -i ${var.private_key_file} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
     scp ubuntu@${aws_eip.master.public_ip}:/home/ubuntu/admin.conf ${local.kubeconfig_file} >/dev/null
-    mv ${local.kubeconfig_file} ~/.kube
-    export KUBECONFIG=$(pwd)/${local.kubeconfig_file}
-
+    cp ${local.kubeconfig_file} ~/.kube
     EOF
   }
   triggers = {

@@ -1,0 +1,45 @@
+---
+-
+  connection: local
+  hosts: localhost
+  gather_facts: no
+  name: "Load secrets from Secret store"
+  tasks:
+    - name: Creates directory
+      file:
+        path: ~/.kube
+        state: directory
+    -
+      copy:
+        content: "\"{{ secret_pem }}\"\n"
+        dest: "{{ item }}"
+      name: "Ansible create file with content"
+      with_items:
+        - "~/{{ ssh_path }}"
+    - copy:
+        content: "\"{{ secret_kube_config }}\"\n"
+        dest: "{{ item }}"
+      name: "Ansible create kube file with content"
+      with_items:
+        - "~/{{ kube_path }}"
+    -
+      file:
+        mode: 0400
+        path: "~/{{ ssh_path }}"
+        modification_time: now
+      name: "Give secure permissions to an existing file"
+
+    - name: remove '" PREFIX
+      replace:
+        dest: "{{ item }}"
+        regexp: '"'
+        replace: ""
+      with_items:
+        - "~/{{ ssh_path }}"
+        -  "~/{{ kube_path }}"
+
+  vars:
+    secret_pem: "{{ lookup('aws_ssm', '/cicd/ssh_key' ) }}"
+    secret_kube_config: "{{ lookup('aws_ssm', '/cicd/secret_kube_config' ) }}"
+    ssh_path: ".ssh/id_rsa"
+    kube_path: ".kube/kubeconfig"

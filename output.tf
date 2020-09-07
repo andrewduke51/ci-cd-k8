@@ -18,6 +18,6 @@ output "nat_gateway_eni" {
   value = "${aws_nat_gateway.aws_nat_gateway.network_interface_id}"
 }
 
-output "master_node_public_ip" {
-  value = module.kubernetes_cluster.master_node_public_ip
-}
+//output "master_node_public_ip" {
+//  value = module.kubernetes_cluster.master_node_public_ip
+//}

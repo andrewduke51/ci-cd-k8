@@ -25,7 +25,7 @@ variable "subnet_id" {
 variable "kubeconfig_dir" {
   type        = string
   description = "Directory on the local machine in which to save the kubeconfig file of the created cluster. The basename of the kubeconfig file will consist of the cluster name followed by \".conf\", for example, \"my-cluster.conf\". The directory may be specified as an absolute or relative path. The directory must exist, otherwise an error occurs. By default, the current working directory is used."
-  default     = "."
+  default     = "~/.kube"
 }
 
 variable "kubeconfig_file" {
@@ -43,13 +43,17 @@ variable "cluster_name" {
 variable "allowed_ssh_cidr_blocks" {
   type        = list(string)
   description = "List of CIDR blocks from which it is allowed to make SSH connections to the EC2 instances that form the cluster nodes. By default, SSH connections are allowed from everywhere."
-  default     = ["0.0.0.0/0"]
+  default     = []
 }
 
 variable "allowed_k8s_cidr_blocks" {
   type        = list(string)
   description = "List of CIDR blocks from which it is allowed to make Kubernetes API request to the API server of the cluster. By default, Kubernetes API requests are allowed from everywhere. Note that Kubernetes API requests from Pods and nodes inside the cluster are always allowed, regardless of the value of this variable."
-  default     = ["0.0.0.0/0"]
+  default     = []
+}
+
+variable "cidr_allowed" {
+  type = string
 }
 
 variable "pod_network_cidr_block" {
@@ -80,9 +84,4 @@ variable "tags" {
   type        = map(string)
   description = "A set of tags to assign to the created AWS resources. These tags will be assigned in addition to the default tags. The default tags include \"terraform-kubeadm:cluster\" which is assigned to all resources and whose value is the cluster name, and \"terraform-kubeadm:node\" which is assigned to the EC2 instances and whose value is the name of the Kubernetes node that this EC2 corresponds to."
   default     = {}
-}
-
-variable "api_dns_name" {
-  type = string
-  description = "The name for the route 53 api call"
 }
