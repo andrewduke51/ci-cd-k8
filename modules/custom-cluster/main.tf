@@ -165,6 +165,7 @@ resource "aws_instance" "master" {
   user_data = data.template_file.init_kubernetes_install.rendered
 }
 
+## workers ###
 resource "aws_instance" "workers" {
   count                       = var.num_workers
   ami                         = data.aws_ami.ubuntu.image_id
