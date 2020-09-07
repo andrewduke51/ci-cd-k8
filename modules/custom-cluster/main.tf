@@ -185,6 +185,18 @@ resource "null_resource" "master_provisioner" {
   }
 }
 
+
+# Template for initial configuration bash script kubernetes
+data "template_file" "init_kubernetes_install_w" {
+  template = file("${path.module}/templates/kubernetes_workers.sh.tpl")
+  count = var.num_workers
+  vars = {
+    TOKEN_ID   = local.token
+    PUBLIC_IP  = aws_eip.master.public_ip
+    INDEX      = count.index
+  }
+}
+
 ## workers ###
 resource "aws_instance" "workers" {
   count                       = var.num_workers
@@ -199,26 +211,7 @@ resource "aws_instance" "workers" {
     aws_security_group.ingress_ssh.id
   ]
   tags      = merge(local.tags, { "terraform-kubeadm:node" = "worker-${count.index}" })
-  user_data = <<-EOF
-  #!/bin/bash
-
-  # Install kubeadm and Docker
-  apt-get update
-  apt-get install -y apt-transport-https curl
-  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" >/etc/apt/sources.list.d/kubernetes.list
-  apt-get update
-  apt-get install -y docker.io kubeadm
-
-  # Run kubeadm
-  kubeadm join ${aws_instance.master.private_ip}:6443 \
-    --token ${local.token} \
-    --discovery-token-unsafe-skip-ca-verification \
-    --node-name worker-${count.index}
-
-  # Indicate completion of bootstrapping on this node
-  touch /home/ubuntu/done
-  EOF
+  user_data = data.template_file.init_kubernetes_install_w[count.index].rendered
 }
 
 #------------------------------------------------------------------------------#
