@@ -19,6 +19,7 @@
 .DS_Store
 python_versions/
 *bootstrap.sh*
+kubeconfig
 notes
 
 *.pem
