@@ -17,3 +17,7 @@ output "nat_gateway_id" {
 output "nat_gateway_eni" {
   value = "${aws_nat_gateway.aws_nat_gateway.network_interface_id}"
 }
+
+output "token" {
+  value = module.kubernetes_cluster.token_used
+}

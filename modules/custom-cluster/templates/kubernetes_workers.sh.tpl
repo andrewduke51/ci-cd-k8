@@ -12,7 +12,7 @@ apt-get install -y docker.io kubeadm
 kubeadm join ${PRIVATE_IP}:6443 \
 --token ${TOKEN_ID} \
 --discovery-token-unsafe-skip-ca-verification \
---node-name worker-${INDEX}
+--node-name ${HOSTNAME}
 
 # Indicate completion of bootstrapping on this node
 touch /home/ubuntu/done

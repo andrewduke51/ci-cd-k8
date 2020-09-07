@@ -145,8 +145,8 @@ data "aws_ami" "ubuntu" {
 data "template_file" "init_kubernetes_install" {
   template = file("${path.module}/templates/kubernetes_intsall.sh.tpl")
   vars = {
-    TOKEN_ID   = local.token
-    PUBLIC_IP  = aws_eip.master.public_ip
+    TOKEN_ID  = local.token
+    PUBLIC_IP = aws_eip.master.public_ip
   }
 }
 
@@ -162,27 +162,32 @@ resource "aws_instance" "master" {
     aws_security_group.ingress_ssh.id
   ]
   tags      = merge(local.tags, { "terraform-kubeadm:node" = "master" })
-  user_data = data.template_file.init_kubernetes_install.rendered
-}
-
-resource "null_resource" "master_provisioner" {
-  triggers = {
-    public_ip = aws_instance.master.public_ip
-  }
-  connection {
-    type = "ssh"
-    host = aws_instance.master.public_ip
-    user = "ubuntu"
-    private_key = file(var.private_key_file)
-    port = 22
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "sleep 10s",
-      "chown ubuntu:ubuntu /home/ubuntu/admin.conf",
-      "touch /home/ubuntu/super_done"
-    ]
-  }
+  #user_data = data.template_file.init_kubernetes_install.rendered
+  user_data = <<-EOF
+  #!/bin/bash
+  # Install kubeadm and Docker
+  apt-get update
+  apt-get install -y apt-transport-https curl
+  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" >/etc/apt/sources.list.d/kubernetes.list
+  apt-get update
+  apt-get install -y docker.io kubeadm
+  # Run kubeadm
+  kubeadm init \
+    --token "${local.token}" \
+    --token-ttl 15m \
+    --apiserver-cert-extra-sans "${aws_eip.master.public_ip}" \
+  %{if var.pod_network_cidr_block != null~}
+    --pod-network-cidr "${var.pod_network_cidr_block}" \
+  %{endif~}
+    --node-name master
+  # Prepare kubeconfig file for download to local machine
+  cp /etc/kubernetes/admin.conf /home/ubuntu
+  chown ubuntu:ubuntu /home/ubuntu/admin.conf
+  kubectl --kubeconfig /home/ubuntu/admin.conf config set-cluster kubernetes --server https://${aws_eip.master.public_ip}:6443
+  # Indicate completion of bootstrapping on this node
+  touch /home/ubuntu/done
+  EOF
 }
 
 ## workers ###
@@ -198,21 +203,37 @@ resource "aws_instance" "workers" {
     aws_security_group.ingress_internal.id,
     aws_security_group.ingress_ssh.id
   ]
-  tags      = merge(local.tags, { "terraform-kubeadm:node" = "worker-${count.index}" })
-  user_data = data.template_file.init_kubernetes_install_w[count.index].rendered
+  tags = merge(local.tags, { "terraform-kubeadm:node" = "worker-${count.index}" })
+  #user_data = data.template_file.init_kubernetes_install_w.rendered
+  user_data  = <<-EOF
+  #!/bin/bash
+  # Install kubeadm and Docker
+  apt-get update
+  apt-get install -y apt-transport-https curl
+  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" >/etc/apt/sources.list.d/kubernetes.list
+  apt-get update
+  apt-get install -y docker.io kubeadm
+  # Run kubeadm
+  kubeadm join ${aws_instance.master.private_ip}:6443 \
+    --token ${local.token} \
+    --discovery-token-unsafe-skip-ca-verification \
+    --node-name worker-${count.index}
+  # Indicate completion of bootstrapping on this node
+  touch /home/ubuntu/done
+  EOF
   depends_on = [aws_instance.master]
 }
 
-# Template for initial configuration bash script kubernetes
-data "template_file" "init_kubernetes_install_w" {
-  count = var.num_workers
-  template = file("${path.module}/templates/kubernetes_workers.sh.tpl")
-  vars = {
-    TOKEN_ID   = local.token
-    PRIVATE_IP  = aws_instance.master.private_ip
-    INDEX      = count.index
-  }
-}
+//# Template for initial configuration bash script kubernetes
+//data "template_file" "init_kubernetes_install_w" {
+//  template = file("${path.module}/templates/kubernetes_workers.sh.tpl")
+//  vars = {
+//    PRIVATE_IP = aws_instance.master.private_ip
+//    TOKEN_ID   = local.token
+//    HOSTNAME   = "worker-${count.index}"
+//  }
+//}
 
 #------------------------------------------------------------------------------#
 # Wait for bootstrap to finish on all nodes
@@ -250,9 +271,6 @@ resource "null_resource" "download_kubeconfig_file" {
     command = <<-EOF
     alias scp='scp -q -i ${var.private_key_file} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
     scp ubuntu@${aws_eip.master.public_ip}:/home/ubuntu/admin.conf ${local.kubeconfig_file} >/dev/null
-    export KUBECONFIG=${local.kubeconfig_file} >/dev/null
-    kubectl create -f https://docs.projectcalico.org/manifests/calico.yaml >/dev/null
-
     EOF
   }
   triggers = {
