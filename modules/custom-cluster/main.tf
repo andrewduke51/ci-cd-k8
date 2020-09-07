@@ -250,7 +250,8 @@ resource "null_resource" "download_kubeconfig_file" {
     command = <<-EOF
     alias scp='scp -q -i ${var.private_key_file} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
     scp ubuntu@${aws_eip.master.public_ip}:/home/ubuntu/admin.conf ${local.kubeconfig_file} >/dev/null
-    export KUBECONFIG=${local.kubeconfig_file}
+    export KUBECONFIG=${local.kubeconfig_file} >/dev/null
+    kubectl create -f https://docs.projectcalico.org/manifests/calico.yaml >/dev/null
 
     EOF
   }
