@@ -165,6 +165,26 @@ resource "aws_instance" "master" {
   user_data = data.template_file.init_kubernetes_install.rendered
 }
 
+resource "null_resource" "master_provisioner" {
+  triggers = {
+    public_ip = aws_instance.master.public_ip
+  }
+  connection {
+    type = "ssh"
+    host = aws_instance.master.public_ip
+    user = "ubuntu"
+    private_key = file(var.private_key_file)
+    port = 22
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sleep 10s",
+      "chown ubuntu:ubuntu /home/ubuntu/admin.conf",
+      "touch /home/ubuntu/super_done"
+    ]
+  }
+}
+
 ## workers ###
 resource "aws_instance" "workers" {
   count                       = var.num_workers
@@ -237,7 +257,6 @@ resource "null_resource" "download_kubeconfig_file" {
     command = <<-EOF
     alias scp='scp -q -i ${var.private_key_file} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
     scp ubuntu@${aws_eip.master.public_ip}:/home/ubuntu/admin.conf ${local.kubeconfig_file} >/dev/null
-    cp ${local.kubeconfig_file} ~/.kube
     EOF
   }
   triggers = {
