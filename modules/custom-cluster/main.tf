@@ -200,7 +200,7 @@ resource "aws_instance" "workers" {
   ]
   tags      = merge(local.tags, { "terraform-kubeadm:node" = "worker-${count.index}" })
   user_data = data.template_file.init_kubernetes_install_w[count.index].rendered
-  depends_on = [aws_instance.master.instance_state]
+  depends_on = [aws_instance.master]
 }
 
 # Template for initial configuration bash script kubernetes
@@ -209,7 +209,7 @@ data "template_file" "init_kubernetes_install_w" {
   template = file("${path.module}/templates/kubernetes_workers.sh.tpl")
   vars = {
     TOKEN_ID   = local.token
-    PUBLIC_IP  = aws_eip.master.public_ip
+    PRIVATE_IP  = aws_instance.master.private_ip
     INDEX      = count.index
   }
 }
@@ -250,7 +250,7 @@ resource "null_resource" "download_kubeconfig_file" {
     command = <<-EOF
     alias scp='scp -q -i ${var.private_key_file} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
     scp ubuntu@${aws_eip.master.public_ip}:/home/ubuntu/admin.conf ${local.kubeconfig_file} >/dev/null
-    export KUBECONFIG=$(pwd)/${local.kubeconfig_file}
+    export KUBECONFIG=${local.kubeconfig_file}
 
     EOF
   }

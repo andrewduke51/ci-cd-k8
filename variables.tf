@@ -11,7 +11,7 @@ variable "subnet_internal" {
 }
 
 variable "my_public_ip" {
-  default = "70.160.122.188"
+  description = "Use your Public IP here"
 }
 
 variable "s3_bucket_name" {

@@ -9,7 +9,7 @@ apt-get update
 apt-get install -y docker.io kubeadm
 
 # Run kubeadm
-kubeadm join ${PUBLIC_IP}:6443 \
+kubeadm join ${PRIVATE_IP}:6443 \
 --token ${TOKEN_ID} \
 --discovery-token-unsafe-skip-ca-verification \
 --node-name worker-${INDEX}
