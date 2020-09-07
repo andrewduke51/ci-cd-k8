@@ -10,14 +10,6 @@ module "kubernetes_cluster" {
   tags = {
     Name = "44-labs.com"
   }
-}
-
-# Route53
-resource "aws_route53_record" "api_kube" {
-  zone_id = var.hosted_zone_id_44
-  name    = "api.kubernetes.44-labs.com"
-  type    = "A"
-  ttl     = "300"
-  records = [module.kubernetes_cluster.master_node_public_ip]
-  depends_on = [module.kubernetes_cluster.master_node_status]
+  hosted_zone_id_44 = var.hosted_zone_id_44
+  api_hostname = var.api_hostname
 }

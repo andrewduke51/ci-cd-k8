@@ -27,3 +27,5 @@ variable "allowed_cidr_blocks" {
 }
 
 variable "hosted_zone_id_44" {}
+
+variable "api_hostname" {}

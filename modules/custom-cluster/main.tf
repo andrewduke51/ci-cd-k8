@@ -256,3 +256,12 @@ resource "null_resource" "download_kubeconfig_file" {
     wait_for_bootstrap_to_finish = null_resource.wait_for_bootstrap_to_finish.id
   }
 }
+
+# Route53
+resource "aws_route53_record" "api_kube" {
+  zone_id = var.hosted_zone_id_44
+  name    = var.api_hostname
+  type    = "A"
+  ttl     = "300"
+  records = [aws_eip.master.public_ip]
+}
