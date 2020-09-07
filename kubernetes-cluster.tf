@@ -19,5 +19,5 @@ resource "aws_route53_record" "api_kube" {
   type    = "A"
   ttl     = "300"
   records = [module.kubernetes_cluster.master_node_public_ip]
-  depends_on = [module.kubernetes_cluster.master_node_public_ip]
+  depends_on = [module.kubernetes_cluster.master_node_status]
 }

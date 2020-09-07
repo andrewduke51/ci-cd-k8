@@ -28,3 +28,7 @@ output "vpc_id" {
 output "master_node_public_ip" {
   value = aws_instance.master.public_ip
 }
+
+output "master_node_status" {
+  value = null_resource.download_kubeconfig_file.triggers
+}
