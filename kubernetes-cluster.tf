@@ -11,5 +11,5 @@ module "kubernetes_cluster" {
     Name = "44-labs.com"
   }
   hosted_zone_id_44 = var.hosted_zone_id_44
-  api_hostname = var.api_hostname
+  api_hostname      = var.api_hostname
 }

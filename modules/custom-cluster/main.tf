@@ -112,10 +112,6 @@ locals {
   token = "${random_string.token_id.result}.${random_string.token_secret.result}"
 }
 
-#------------------------------------------------------------------------------#
-# EC2 instances
-#------------------------------------------------------------------------------#
-
 data "aws_ami" "ubuntu" {
   owners      = ["099720109477"] # AWS account ID of Canonical
   most_recent = true
@@ -148,32 +144,32 @@ resource "aws_instance" "master" {
     aws_security_group.ingress_ssh.id
   ]
   tags      = merge(local.tags, { "terraform-kubeadm:node" = "master" })
-  user_data = data.template_file.init_kubernetes_install.rendered
-  //  user_data = <<-EOF
-  //  #!/bin/bash
-  //  # Install kubeadm and Docker
-  //  apt-get update
-  //  apt-get install -y apt-transport-https curl
-  //  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-  //  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" >/etc/apt/sources.list.d/kubernetes.list
-  //  apt-get update
-  //  apt-get install -y docker.io kubeadm
-  //  # Run kubeadm
-  //  kubeadm init \
-  //    --token "${local.token}" \
-  //    --token-ttl 15m \
-  //    --apiserver-cert-extra-sans "${aws_eip.master.public_ip}" \
-  //  %{if var.pod_network_cidr_block != null~}
-  //    --pod-network-cidr "${var.pod_network_cidr_block}" \
-  //  %{endif~}
-  //    --node-name master
-  //  # Prepare kubeconfig file for download to local machine
-  //  cp /etc/kubernetes/admin.conf /home/ubuntu
-  //  chown ubuntu:ubuntu /home/ubuntu/admin.conf
-  //  kubectl --kubeconfig /home/ubuntu/admin.conf config set-cluster kubernetes --server https://${aws_eip.master.public_ip}:6443
-  //  # Indicate completion of bootstrapping on this node
-  //  touch /home/ubuntu/done
-  //  EOF
+  #user_data = data.template_file.init_kubernetes_install.rendered
+    user_data = <<-EOF
+    #!/bin/bash
+    # Install kubeadm and Docker
+    apt-get update
+    apt-get install -y apt-transport-https curl
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" >/etc/apt/sources.list.d/kubernetes.list
+    apt-get update
+    apt-get install -y docker.io kubeadm
+    # Run kubeadm
+    kubeadm init \
+      --token "${local.token}" \
+      --token-ttl 15m \
+      --apiserver-cert-extra-sans "${aws_eip.master.public_ip}" \
+    %{if var.pod_network_cidr_block != null~}
+      --pod-network-cidr "${var.pod_network_cidr_block}" \
+    %{endif~}
+      --node-name master
+    # Prepare kubeconfig file for download to local machine
+    cp /etc/kubernetes/admin.conf /home/ubuntu
+    chown ubuntu:ubuntu /home/ubuntu/admin.conf
+    kubectl --kubeconfig /home/ubuntu/admin.conf config set-cluster kubernetes --server https://${aws_eip.master.public_ip}:6443
+    # Indicate completion of bootstrapping on this node
+    touch /home/ubuntu/done
+    EOF
 }
 
 ## workers ###
@@ -191,24 +187,24 @@ resource "aws_instance" "workers" {
     aws_security_group.ingress_ssh.id
   ]
   tags      = merge(local.tags, { "terraform-kubeadm:node" = "worker-${count.index}" })
-  user_data = data.template_file.init_kubernetes_install_w[count.index].rendered
-  //  user_data  = <<-EOF
-  //  #!/bin/bash
-  //  # Install kubeadm and Docker
-  //  apt-get update
-  //  apt-get install -y apt-transport-https curl
-  //  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-  //  echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" >/etc/apt/sources.list.d/kubernetes.list
-  //  apt-get update
-  //  apt-get install -y docker.io kubeadm
-  //  # Run kubeadm
-  //  kubeadm join ${aws_instance.master.private_ip}:6443 \
-  //    --token ${local.token} \
-  //    --discovery-token-unsafe-skip-ca-verification \
-  //    --node-name worker-${count.index}
-  //  # Indicate completion of bootstrapping on this node
-  //  touch /home/ubuntu/done
-  //  EOF
+  #user_data = data.template_file.init_kubernetes_install_w[count.index].rendered
+    user_data  = <<-EOF
+    #!/bin/bash
+    # Install kubeadm and Docker
+    apt-get update
+    apt-get install -y apt-transport-https curl
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" >/etc/apt/sources.list.d/kubernetes.list
+    apt-get update
+    apt-get install -y docker.io kubeadm
+    # Run kubeadm
+    kubeadm join ${aws_instance.master.private_ip}:6443 \
+      --token ${local.token} \
+      --discovery-token-unsafe-skip-ca-verification \
+      --node-name worker-${count.index}
+    # Indicate completion of bootstrapping on this node
+    touch /home/ubuntu/done
+    EOF
   depends_on = [aws_instance.master]
 }
 
