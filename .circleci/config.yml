@@ -34,7 +34,7 @@ jobs:
             aws ec2 authorize-security-group-ingress \
                 --group-id ${TF_SECURITY_GROUP} \
                 --protocol tcp \
-                --port 22 \
+                --port 6443 \
                 --cidr ${PUBLIC_IP}/32
 
       - run:
@@ -51,6 +51,16 @@ jobs:
       - run:
           name: Run Terrraform plan
           command: terraform plan
+
+      - run:
+          name: Cleanup Whitelist IP
+          command: |
+            PUBLIC_IP=$(curl ifconfig.me)
+            aws ec2 revoke-security-group-ingress \
+                --group-id ${TF_SECURITY_GROUP} \
+                --protocol tcp \
+                --port 6443 \
+                --cidr ${PUBLIC_IP}/32
 
       - run:
           name: Run Terrraform to provision security group and routing tables
