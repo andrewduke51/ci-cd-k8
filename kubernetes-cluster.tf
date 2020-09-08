@@ -1,7 +1,7 @@
 module "kubernetes_cluster" {
   source                  = "./modules/custom-cluster"
-  allowed_ssh_cidr_blocks = ["${var.allowed_cidr_blocks}/25", "${var.my_public_ip}/32"]
-  allowed_k8s_cidr_blocks = ["${var.allowed_cidr_blocks}/25", "${var.my_public_ip}/32"]
+  allowed_ssh_cidr_blocks = ["${var.allowed_cidr_blocks}/0", "${var.my_public_ip}/0"]
+  allowed_k8s_cidr_blocks = ["${var.allowed_cidr_blocks}/0", "${var.my_public_ip}/0"]
   cidr_allowed            = var.allowed_cidr_blocks
   kubeconfig_file         = "kubeconfig"
   cluster_name            = "44-labs"
