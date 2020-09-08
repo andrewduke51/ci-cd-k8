@@ -28,15 +28,19 @@ jobs:
               export TEST_MODE=1
 
       - run:
-          name: Whitelist IP and test kubectl
+          name: Whitelist IP
           command: |
             PUBLIC_IP=$(curl ifconfig.me)
-            ansible-playbook ansible/playbooks/locals.yml
             aws ec2 authorize-security-group-ingress \
-                            --group-id ${TF_SECURITY_GROUP} \
-                            --protocol tcp \
-                            --port 22 \
-                            --cidr ${PUBLIC_IP}/32
+                --group-id ${TF_SECURITY_GROUP} \
+                --protocol tcp \
+                --port 22 \
+                --cidr ${PUBLIC_IP}/32
+
+      - run:
+          name: Test kubectl
+          command: |
+            ansible-playbook ansible/playbooks/locals.yml
             export KUBECONFIG=~/.kube/kubeconfig
             kubectl get nodes --show-labels
 
