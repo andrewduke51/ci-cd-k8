@@ -34,5 +34,5 @@ resource "aws_iam_role_policy_attachment" "kubernetes_policy_attach" {
 
 resource "aws_iam_role_policy_attachment" "kubernetes_policy_attach_2" {
   role = aws_iam_role.kubernetes_role.id
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
 }
