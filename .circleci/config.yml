@@ -32,6 +32,11 @@ jobs:
           command: |
             PUBLIC_IP=$(curl ifconfig.me)
             ansible-playbook ansible/playbooks/locals.yml
+            aws ec2 authorize-security-group-ingress \
+                            --group-id ${TF_SECURITY_GROUP} \
+                            --protocol tcp \
+                            --port 22 \
+                            --cidr ${PUBLIC_IP}/32
             export KUBECONFIG=~/.kube/kubeconfig
             kubectl get nodes --show-labels
 
