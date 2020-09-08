@@ -139,7 +139,7 @@ resource "aws_instance" "master" {
   instance_type        = var.master_instance_type
   subnet_id            = var.subnet_id
   key_name             = aws_key_pair.main.key_name
-  iam_instance_profile = aws_iam_role.ec2_role.name
+  iam_instance_profile = aws_iam_instance_profile.ec2_role_profile.name
   vpc_security_group_ids = [
     aws_security_group.egress.id,
     aws_security_group.ingress_internal.id,
@@ -183,7 +183,7 @@ resource "aws_instance" "workers" {
   subnet_id                   = var.subnet_id
   associate_public_ip_address = true
   key_name                    = aws_key_pair.main.key_name
-  iam_instance_profile        = aws_iam_role.ec2_role.name
+  iam_instance_profile        = aws_iam_instance_profile.ec2_role_profile.name
   vpc_security_group_ids = [
     aws_security_group.egress.id,
     aws_security_group.ingress_internal.id,
