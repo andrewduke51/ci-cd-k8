@@ -15,7 +15,7 @@ kubeadm init \
 --token "${TOKEN_ID}" \
 --token-ttl 15m \
 --apiserver-cert-extra-sans "${PUBLIC_IP}" \
---pod-network-cidr "10.80.81.0/25" \
+--pod-network-cidr "${CIDR_BLOCK}" \
 --node-name master
 
 # Indicate completing of bootstrapping
