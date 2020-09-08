@@ -10,5 +10,4 @@ module "kubernetes_cluster" {
   tags = {
     Name = "44-labs.com"
   }
-  api_hostname      = var.api_hostname
 }
