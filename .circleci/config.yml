@@ -32,7 +32,7 @@ jobs:
           command: |
             PUBLIC_IP=$(curl ifconfig.me)
             ansible-playbook ansible/playbooks/locals.yml
-            ls -all ~/.kube #export KUBECONFIG=kubeconfig
+            export KUBECONFIG=~/.kube/kubeconfig
             kubectl get nodes --show-labels
 
       - run:
