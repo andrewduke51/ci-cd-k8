@@ -70,7 +70,7 @@ jobs:
               echo "Terraform will not apply changes from $CIRCLE_BRANCH"
               echo "Terraform apply only from master branch, submit a pull request"
               AUTO_DEPLOY=none
-            elif [ $CIRCLE_BRANCH = 'integration-branch' ]; then
+            elif [ $CIRCLE_BRANCH = 'master' ]; then
               AUTO_DEPLOY="-auto-approve"
               terraform apply $AUTO_DEPLOY
             fi
