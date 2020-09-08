@@ -2,10 +2,6 @@ terraform {
   required_version = ">= 0.12"
 }
 
-#------------------------------------------------------------------------------#
-# Common local values
-#------------------------------------------------------------------------------#
-
 resource "random_pet" "cluster_name" {}
 
 locals {
@@ -13,20 +9,12 @@ locals {
   tags         = merge(var.tags, { "terraform-kubeadm:cluster" = local.cluster_name })
 }
 
-#------------------------------------------------------------------------------#
-# Key pair
-#------------------------------------------------------------------------------#
-
 # Performs 'ImportKeyPair' API operation (not 'CreateKeyPair')
 resource "aws_key_pair" "main" {
   key_name_prefix = "${local.cluster_name}-"
   public_key      = file(var.public_key_file)
   tags            = local.tags
 }
-
-#------------------------------------------------------------------------------#
-# Security groups
-#------------------------------------------------------------------------------#
 
 # The AWS provider removes the default "allow all "egress rule from all security
 # groups, so it has to be defined explicitly.
@@ -106,10 +94,6 @@ resource "aws_eip_association" "master" {
   instance_id   = aws_instance.master.id
 }
 
-#------------------------------------------------------------------------------#
-# Bootstrap token for kubeadm
-#------------------------------------------------------------------------------#
-
 # Generate bootstrap token
 # See https://kubernetes.io/docs/reference/access-authn-authz/bootstrap-tokens/
 resource "random_string" "token_id" {
@@ -151,17 +135,18 @@ data "template_file" "init_kubernetes_install" {
 }
 
 resource "aws_instance" "master" {
-  ami           = data.aws_ami.ubuntu.image_id
-  instance_type = var.master_instance_type
-  subnet_id     = var.subnet_id
-  key_name      = aws_key_pair.main.key_name
+  ami                  = data.aws_ami.ubuntu.image_id
+  instance_type        = var.master_instance_type
+  subnet_id            = var.subnet_id
+  key_name             = aws_key_pair.main.key_name
+  iam_instance_profile = aws_iam_role.ec2_role.name
   vpc_security_group_ids = [
     aws_security_group.egress.id,
     aws_security_group.ingress_internal.id,
     aws_security_group.ingress_k8s.id,
     aws_security_group.ingress_ssh.id
   ]
-  tags      = merge(local.tags, { "terraform-kubeadm:node" = "master" })
+  tags = merge(local.tags, { "terraform-kubeadm:node" = "master" })
   #user_data = data.template_file.init_kubernetes_install.rendered
   user_data = <<-EOF
   #!/bin/bash
@@ -198,6 +183,7 @@ resource "aws_instance" "workers" {
   subnet_id                   = var.subnet_id
   associate_public_ip_address = true
   key_name                    = aws_key_pair.main.key_name
+  iam_instance_profile        = aws_iam_role.ec2_role.name
   vpc_security_group_ids = [
     aws_security_group.egress.id,
     aws_security_group.ingress_internal.id,
