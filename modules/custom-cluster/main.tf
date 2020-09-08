@@ -262,11 +262,11 @@ resource "null_resource" "download_kubeconfig_file" {
   }
 }
 
-# Route53
-resource "aws_route53_record" "api_kube" {
-  zone_id = var.hosted_zone_id_44
-  name    = var.api_hostname
-  type    = "A"
-  ttl     = "300"
-  records = [aws_eip.master.public_ip]
-}
+//# Route53
+//resource "aws_route53_record" "api_kube" {
+//  zone_id = var.hosted_zone_id_44
+//  name    = var.api_hostname
+//  type    = "A"
+//  ttl     = "300"
+//  records = [aws_eip.master.public_ip]
+//}

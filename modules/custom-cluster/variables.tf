@@ -56,10 +56,6 @@ variable "cidr_allowed" {
   type = string
 }
 
-variable "hosted_zone_id_44" {}
-
-variable "api_hostname" {}
-
 variable "pod_network_cidr_block" {
   type        = string
   description = "**This is an optional variable with a default value of null**. CIDR block for the Pod network of the cluster. If set, Kubernetes automatically allocates Pod subnet IP address ranges to the nodes (i.e. sets the \".spec.podCIDR\" field of the node objects). If null, the cluster is created without an explicitly determined Pod network IP address range, and the nodes are not allocated any Pod subnet IP address ranges (i.e. the \".spec.podCIDR\" field of the nodes is not set)."

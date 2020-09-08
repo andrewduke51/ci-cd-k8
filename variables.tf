@@ -12,6 +12,7 @@ variable "subnet_internal" {
 
 variable "my_public_ip" {
   description = "Use your Public IP here"
+  default = "0.0.0.0/0"
 }
 
 variable "s3_bucket_name" {
@@ -24,8 +25,9 @@ variable "terraform_dynamodb_iam_locks" {
 
 variable "allowed_cidr_blocks" {
   description = "Allow your Public IP"
+  default = "0.0.0.0/0"
 }
 
-variable "hosted_zone_id_44" {}
-
-variable "api_hostname" {}
+variable "api_hostname" {
+  default = "example.com"
+}
