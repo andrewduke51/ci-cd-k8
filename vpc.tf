@@ -2,6 +2,7 @@
 resource "aws_vpc" "main_vpc" {
   cidr_block = var.subnet_vpc
   tags = {
+    "Name"    = "main-vpc"
     "app_tag" = "aws-infra"
   }
 }
