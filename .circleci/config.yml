@@ -63,7 +63,7 @@ jobs:
                 --cidr ${PUBLIC_IP}/32
 
       - run:
-          name: Run Terrraform to provision security group and routing tables
+          name: Run Terrraform
           command: |
             # when AUTO_DEPLOY is for master branch only
             if [ $CIRCLE_BRANCH = '$CIRCLE_BRANCH' ]; then
