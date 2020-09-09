@@ -29,10 +29,5 @@ resource "aws_iam_instance_profile" "kubernetes_profile" {
 
 resource "aws_iam_role_policy_attachment" "kubernetes_policy_attach" {
   role = aws_iam_role.kubernetes_role.id
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
-}
-
-resource "aws_iam_role_policy_attachment" "kubernetes_policy_attach_2" {
-  role = aws_iam_role.kubernetes_role.id
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
